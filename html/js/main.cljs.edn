@@ -1,0 +1,2 @@
+{:require [openweathermap-charts-cljs.core openweathermap-charts-cljs.weather]
+ :compiler-options {:asset-path "js/main.out"}}

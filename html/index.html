@@ -1,0 +1,30 @@
+<!doctype html>
+
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+
+  <title>Open Weather Map Data Visualizer</title>
+  <meta name="description" content="A simple ClojureScript playground with Boot.">
+  <meta name="author" content="Daniel Walker">
+  <link rel="stylesheet" href="http://cdn.leafletjs.com/leaflet/v0.7.7/leaflet.css" />
+  <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css" rel="stylesheet" integrity="sha256-MfvZlkHCEqatNoGiOXveE8FIwMzZg4W85qfrfIFBfYc= sha512-dTfge/zgoMYpP7QbHy4gWMEGsbsdZeCXz7irItjcC3sPUFtf0kuFbDz/ixG7ArTxmDjLXDmezHubeNikyKGVyQ==" crossorigin="anonymous">
+</head>
+
+<body>
+
+<div class="container">
+  <div class="jumbotron">
+    <div class="container">
+      <h1>Open Weather Map</h1>
+      <p>A simple ClojureScript playground with Boot.</p>
+    </div>
+  </div>
+  <ul id="cityList" class="nav nav-pills"></ul>
+  <div id="map"></div>
+  <div id="temps"></div>
+</div>
+<script src="http://cdn.leafletjs.com/leaflet/v0.7.7/leaflet.js"></script>
+<script src="js/main.js"></script>
+</body>
+</html>
