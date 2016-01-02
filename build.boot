@@ -25,6 +25,6 @@
   (comp
     (serve :dir "target")
     (watch)
-    (reload :on-jsload 'openweathermap-charts-cljs.core/on-js-reload)
+    (reload :on-jsload 'openweathermap-charts-cljs.core/reset)
     (cljs-repl)
     (cljs)))

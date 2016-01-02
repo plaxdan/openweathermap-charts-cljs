@@ -1,6 +1,6 @@
 (ns openweathermap-charts-cljs.core
   (:require-macros [cljs.core.async.macros :refer [go]])
-  (:require [cljs.core.async :refer [<!]]
+  (:require [cljs.core.async :refer [<! chan]]
             [openweathermap-charts-cljs.weather :as w]))
 
 ; https://twitter.com/lynaghk/status/384907387787681792?replies_view=true&cursor=AHDCEyx5VwU
@@ -49,11 +49,29 @@
     (set! (.-className parent-node) "active")
     (.-innerText a)))
 
-(defn show-data [data-chan]
+(defn show-raw [raw-data]
   (let [map-el (.getElementById js/document "rawData")]
+    (set! (.-innerText map-el) raw-data)))
+
+(defn show-map [map-data])
+(defn show-chart [chart-data])
+
+(defn to-map-chan
+  "Converts a channel of raw Open Weather Map data
+  into a channel of lat long data."
+  [raw-chan])
+
+(defn to-chart-chan
+  "Converts a channel of raw Open Weather Map data
+  into a channel of chartist data."
+  [raw-chan])
+
+(defn fetch-weather [city]
+  (let [raw-chan (w/weather-channel city)]
     (go
-      (let [forecast (<! data-chan)]
-        (set! (.-innerText map-el) forecast)))))
+      (show-raw (<! raw-chan))
+      (show-map (<! (to-map-chan raw-chan)))
+      (show-chart (<! (to-chart-chan raw-chan))))))
 
 (defn on-click-city
   [click-event]
@@ -61,7 +79,7 @@
   (let [a (.-target click-event)]
     (let [city (select-city a)]
       (println "Chosen city:" city)
-      (show-data (w/weather-channel city)))))
+      (fetch-weather city))))
 
 (defn make-city
   "Creates a button for the given city."
@@ -74,7 +92,7 @@
       li)))
 
 (defn add-cities
-  "Main function."
+  "Creates buttons for all cities and adds them to the DOM."
   [cities]
   (let [city-buttons (map make-city cities)]
     (doseq [city city-buttons]
@@ -85,10 +103,3 @@
   (add-cities (@app-state :cities)))
 
 (add-cities (@app-state :cities))
-
-(defn on-js-reload
-  []
-  ;; optionally touch your app-state to force rerendering depending on
-  ;; your application
-  ;; (swap! app-state update-in [:__figwheel_counter] inc)
-  (reset))
