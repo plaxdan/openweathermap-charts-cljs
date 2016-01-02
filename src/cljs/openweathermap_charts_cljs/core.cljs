@@ -1,5 +1,7 @@
 (ns openweathermap-charts-cljs.core
-  (:require))
+  (:require-macros [cljs.core.async.macros :refer [go]])
+  (:require [cljs.core.async :refer [<!]]
+            [openweathermap-charts-cljs.weather :as w]))
 
 ; https://twitter.com/lynaghk/status/384907387787681792?replies_view=true&cursor=AHDCEyx5VwU
 (extend-type js/NodeList
@@ -18,6 +20,10 @@
   "Removes the children of the given parent."
   [parent]
   (set! (.-innerHTML parent) ""))
+
+(defn clear-cities
+  []
+  (clear-children cities-container))
 
 (defn child-adder
   "Returns a function which adds children to the given parent."
@@ -40,16 +46,24 @@
 (defn select-city
   [a]
   (let [parent-node (.-parentNode a)]
-    (set! (.-className parent-node) "active")))
+    (set! (.-className parent-node) "active")
+    (.-innerText a)))
+
+(defn show-data [data-chan]
+  (let [map-el (.getElementById js/document "rawData")]
+    (go
+      (let [forecast (<! data-chan)]
+        (set! (.-innerText map-el) forecast)))))
 
 (defn on-click-city
   [click-event]
   (remove-classes (.-childNodes cities-container))
   (let [a (.-target click-event)]
-    ; TODO: fetch data
-    (select-city a)))
+    (let [city (select-city a)]
+      (println "Chosen city:" city)
+      (show-data (w/weather-channel city)))))
 
-(defn make-city-button
+(defn make-city
   "Creates a button for the given city."
   [city]
   (let [li (create-element "li" {"role" "presentation"})]
@@ -59,23 +73,22 @@
       ((child-adder li) a)
       li)))
 
-(defn make-city-buttons
-  [cities]
-  (map make-city-button cities))
-
-(defn go
+(defn add-cities
   "Main function."
-  []
-  (let [city-buttons (make-city-buttons (@app-state :cities))]
+  [cities]
+  (let [city-buttons (map make-city cities)]
     (doseq [city city-buttons]
       ((child-adder cities-container) city))))
 
-(go)
+(defn reset []
+  (clear-cities)
+  (add-cities (@app-state :cities)))
+
+(add-cities (@app-state :cities))
 
 (defn on-js-reload
   []
   ;; optionally touch your app-state to force rerendering depending on
   ;; your application
   ;; (swap! app-state update-in [:__figwheel_counter] inc)
-  (clear-children cities-container)
-  (go))
+  (reset))

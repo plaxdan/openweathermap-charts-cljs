@@ -10,7 +10,9 @@
                  [adzerk/boot-cljs-repl "0.3.0"]
                  [com.cemerick/piggieback "0.2.1"]
                  [weasel "0.7.0"]
-                 [org.clojure/tools.nrepl "0.2.12"]])
+                 [org.clojure/tools.nrepl "0.2.12"]
+                 [cljs-http/cljs-http "0.1.39"]
+                 [org.clojure/core.async "0.2.374"]])
 
 (require '[adzerk.boot-cljs :refer [cljs]]
          '[pandeiro.boot-http :refer [serve]]
@@ -20,9 +22,9 @@
 (deftask dev
   "Launch Immediate Feedback Development Environment."
   []
-  (comp ;; Compose the following tasks together...
-    (serve :dir "target") ;; Dev server
-    (watch)               ;; Watch files
-    (reload)              ;; Reload the browser on change
-    (cljs-repl)           ;; Browser REPL
-    (cljs)))              ;; ClojureScript compilation
+  (comp
+    (serve :dir "target")
+    (watch)
+    (reload :on-jsload 'openweathermap-charts-cljs.core/on-js-reload)
+    (cljs-repl)
+    (cljs)))
